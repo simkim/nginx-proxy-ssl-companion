@@ -1,0 +1,22 @@
+app:
+  build: .
+  restart: unless-stopped
+  ports:
+  - "80:80"
+  - "443:443"
+  volumes:
+  - /var/run/docker.sock:/tmp/docker.sock
+  - nginxproxy_certs:/etc/nginx/certs:ro
+  - nginxproxy_vhosts:/etc/nginx/vhost.d
+  - nginxproxy_html:/usr/share/nginx/html
+letsencrypt:
+  restart: unless-stopped
+  image: jrcs/letsencrypt-nginx-proxy-companion
+  volumes:
+  - /var/run/docker.sock:/var/run/docker.sock:ro
+  - nginxproxy_vhosts:/etc/nginx/vhost.d
+  - nginxproxy_certs:/etc/nginx/certs:rw
+  - nginxproxy_html:/usr/share/nginx/html
+  environment:
+  - NGINX_PROXY_CONTAINER=nginxproxy_app_1
+  - DEBUG=1
